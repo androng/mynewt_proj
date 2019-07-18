@@ -44,7 +44,7 @@ static uint8_t ble_temp_addr_type;
 static const uint32_t TEMPERATURE_PERIOD = 100; 
 
 /* Define task stack and task object */
-#define TASK1_TASK_PRI         (OS_TASK_PRI_HIGHEST)
+#define TASK1_TASK_PRI         (1)
 #define TASK1_STACK_SIZE       (64)
 struct os_task task1;
 os_stack_t task1_stack[TASK1_STACK_SIZE];
