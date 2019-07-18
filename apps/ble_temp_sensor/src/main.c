@@ -174,13 +174,6 @@ task1_handler(void *arg)
     }
 }
 
-/* Initialize task 1 exposed data objects */
-void
-task1_init(void)
-{
-
-}
-
 /**
 * init_app_tasks
 *  
@@ -191,11 +184,6 @@ task1_init(void)
 static int
 init_app_tasks(void)
 {
-    /* 
-    * Call task specific initialization functions to initialize any shared objects 
-    * before initializing the tasks with the OS.
-    */
-    task1_init();
 
     /*
     * Initialize task 1 with the OS. 
