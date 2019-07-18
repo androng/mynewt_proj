@@ -41,6 +41,14 @@ static int ble_temp_gap_event(struct ble_gap_event *event, void *arg);
 
 static uint8_t ble_temp_addr_type;
 
+static const uint32_t TEMPERATURE_PERIOD = 100; 
+
+/* Define task stack and task object */
+#define TASK1_TASK_PRI         (OS_TASK_PRI_HIGHEST)
+#define TASK1_STACK_SIZE       (64)
+struct os_task task1;
+os_stack_t task1_stack[TASK1_STACK_SIZE];
+
 /*
  * Enables advertising with parameters:
  *     o General discoverable mode
@@ -155,6 +163,49 @@ on_sync(void)
     LOG(INFO, "adv started\n");
 }
 
+/* Task 1 handler function */
+void
+task1_handler(void *arg)
+{
+    while (1) {
+
+        os_time_delay(TEMPERATURE_PERIOD);
+
+    }
+}
+
+/* Initialize task 1 exposed data objects */
+void
+task1_init(void)
+{
+
+}
+
+/**
+* init_app_tasks
+*  
+* This function performs initializations that are required before tasks run. 
+*  
+* @return int 0 success; error otherwise.
+*/
+static int
+init_app_tasks(void)
+{
+    /* 
+    * Call task specific initialization functions to initialize any shared objects 
+    * before initializing the tasks with the OS.
+    */
+    task1_init();
+
+    /*
+    * Initialize task 1 with the OS. 
+    */
+    os_task_init(&task1, "task1", task1_handler, NULL, TASK1_TASK_PRI, 
+                    OS_WAIT_FOREVER, task1_stack, TASK1_STACK_SIZE);
+
+    return 0;
+}
+
 /*
  * main
  *
@@ -174,6 +225,8 @@ main(void)
     /* Initialize the logger */
     log_register("ble_temp_sensor_log", &logger, &log_console_handler, NULL, LOG_SYSLEVEL);
 
+    LOG(INFO, "hello\n");
+
     /* Prepare the internal temperature module for measurement */
     nrf_temp_init();
 
@@ -187,6 +240,9 @@ main(void)
     /* Set the default device name */
     rc = ble_svc_gap_device_name_set(device_name);
     assert(rc == 0);
+
+    /* Initialize application specific tasks */
+    init_app_tasks();
 
     /* As the last thing, process events from default event queue */
     while (1) {
