@@ -194,7 +194,9 @@ task1_handler(void *arg)
         }
 
 
-        os_time_delay(TEMPERATURE_PERIOD);
+        uint32_t num_ticks;
+        os_time_ms_to_ticks(TEMPERATURE_PERIOD, &num_ticks);
+        os_time_delay(num_ticks);
     }
 }
 
