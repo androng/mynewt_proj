@@ -23,6 +23,7 @@
 #include <errno.h>
 
 #include <nrf_temp.h>
+#include <temp.h>
 
 #include <os/mynewt.h>
 #include <nimble/ble.h>
@@ -41,6 +42,7 @@ static int ble_temp_gap_event(struct ble_gap_event *event, void *arg);
 
 static uint8_t ble_temp_addr_type;
 
+/* Period in ms between temperature readings */
 static const uint32_t TEMPERATURE_PERIOD = 100; 
 
 /* Define task stack and task object */
@@ -48,6 +50,10 @@ static const uint32_t TEMPERATURE_PERIOD = 100;
 #define TASK1_STACK_SIZE       (64)
 struct os_task task1;
 os_stack_t task1_stack[TASK1_STACK_SIZE];
+
+/* Buffer size. Unit: tempaerture readings. When buffer is full, 
+   data is sent over Bluetooth */
+#define TEMPERATURE_READINGS_BUFFER_SIZE 10
 
 /*
  * Enables advertising with parameters:
@@ -163,14 +169,32 @@ on_sync(void)
     LOG(INFO, "adv started\n");
 }
 
-/* Task 1 handler function */
+/* Task gathers temperature readings and when the buffer is full, copies
+    them to the BLE GATT so they can be read by an iPhone.  */
 void
 task1_handler(void *arg)
 {
+    static int16_t temperature_readings[TEMPERATURE_READINGS_BUFFER_SIZE];
+    static uint8_t temperature_readings_index = 0;
+
     while (1) {
 
-        os_time_delay(TEMPERATURE_PERIOD);
+        temperature_readings[temperature_readings_index] = get_temp_measurement();
 
+        temperature_readings_index++;
+
+        /* If buffer is full */
+        if(TEMPERATURE_READINGS_BUFFER_SIZE == temperature_readings_index){
+            LOG(INFO, "buffer full\n");
+            for(uint8_t i = 0; i < TEMPERATURE_READINGS_BUFFER_SIZE; i++){
+                LOG(INFO, "%x", temperature_readings[i]);
+            }
+
+            temperature_readings_index = 0;
+        }
+
+
+        os_time_delay(TEMPERATURE_PERIOD);
     }
 }
 
