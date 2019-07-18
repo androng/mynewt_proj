@@ -35,7 +35,7 @@
 /* Log data */
 struct log logger;
 
-static const char *device_name = "ble_temp_sensor";
+static const char *device_name = "Andrew_temp_sensor";
 
 static int ble_temp_gap_event(struct ble_gap_event *event, void *arg);
 
