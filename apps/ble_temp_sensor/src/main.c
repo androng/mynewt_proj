@@ -186,9 +186,14 @@ task1_handler(void *arg)
         /* If buffer is full */
         if(TEMPERATURE_READINGS_BUFFER_SIZE == temperature_readings_index){
             LOG(INFO, "buffer full\n");
+
+            /* Output temperature readings */
             for(uint8_t i = 0; i < TEMPERATURE_READINGS_BUFFER_SIZE; i++){
                 LOG(INFO, "%x", temperature_readings[i]);
             }
+
+            /* Copy temperature readings to BLE GATT */
+
 
             temperature_readings_index = 0;
         }
@@ -239,7 +244,7 @@ main(void)
     /* Initialize the logger */
     log_register("ble_temp_sensor_log", &logger, &log_console_handler, NULL, LOG_SYSLEVEL);
 
-    LOG(INFO, "hello\n");
+    LOG(INFO, "Firmware v1\n");
 
     /* Prepare the internal temperature module for measurement */
     nrf_temp_init();
